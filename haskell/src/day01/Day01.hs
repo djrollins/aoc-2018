@@ -1,7 +1,9 @@
-module Day01Main where
+module Day01 (day01) where
 
 import Control.Monad.State
 import qualified Data.Set as S
+import qualified Data.List.NonEmpty as NE
+import Data.List.NonEmpty ( NonEmpty ((:|)) )
 import System.IO
 
 inputData :: IO String
@@ -14,23 +16,24 @@ applyChange (op:val) acc =
     '-' -> acc - val'
     where val' = read val
 
+part1 :: String -> Int
 part1 = foldr applyChange 0 . lines
 
-findDuplicate :: [Int] -> State (S.Set Int) Int
-findDuplicate (x:xs) = do
+findDuplicate :: NonEmpty Int -> State (S.Set Int) Int
+findDuplicate (x :| xs) = do
 
   sizeBefore <- gets S.size
   modify (S.insert x)
   after <- get
 
   if (S.size after > sizeBefore)
-  then return $ evalState (findDuplicate xs) after
+  then return $ evalState (findDuplicate . NE.fromList $ xs) after
   else return x
 
 
 part2Simple :: String -> Int
 part2Simple input = do
-  evalState (findDuplicate . scanl (flip applyChange) 0 . cycle . lines $ input) S.empty
+  evalState (findDuplicate . NE.scanl (flip applyChange) 0 . NE.cycle . NE.fromList . lines $ input) S.empty
 
 -- overly complicated version part 2
 
@@ -49,8 +52,10 @@ part2 input =
     evalState (traverse (isUnique) .
     scanl (flip applyChange) 0 . cycle . lines $ input) $ S.empty
 
-main = do
+day01 = do
   input <- inputData
+  putStrLn "-- Day 01"
+  putStr "part 1: "
   putStrLn . show . part1 $ input
+  putStr "part 2: "
   putStrLn . show . part2 $ input
-  putStrLn . show . part2Simple $ input
