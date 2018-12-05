@@ -7,7 +7,7 @@ import Data.List.NonEmpty ( NonEmpty ((:|)) )
 import System.IO
 
 inputData :: IO String
-inputData = readFile "../input/day01.txt"
+inputData = readFile "../input.txt"
 
 applyChange :: String -> Int -> Int
 applyChange (op:val) acc =
